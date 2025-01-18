@@ -37,18 +37,16 @@ Format the answer as follows:
         Add a fitting document name for either the document, spreadsheet or email.
     </document-name>
     <message>
-        Add the answer to the question here, based on the relevant 
+        Add the answer to the question here, based on the relevant
         information in <relevant-information>.
     </message>
 </answer>
 """
-
 skatt_lovdata = """
-Skatteloven er en norsk lov som regulerer forhold ved innkreving av ulike skatter. Blant annet regulerer loven formuesskatt, inntektsskatt, grunnrenteskatt, naturresursskatt og tonnasjeskatt.
-
-I tråd med legalitetsprinsippet er loven hjemmelsgrunnlag for kommunestyrene, fylkestingene og Stortinget slik at disse kan pålegge de fastsatte skattene ved de ulike administrasjonsnivåene.
-
-Någjeldende skattelov ble vedtatt i 1999 som følge av et behov for lovteknisk revisjon av gjeldende skattelov fra 1911 og de ulike særlovene som var i kraft i 1999. Skattereformer er jevnlig gjenstand for politisk debatt i anledning valg og andre former for utøvelse av demokrati.
+§ 4-11.Jordbrukseiendom, skog og reinflokk
+(1) Jordbrukseiendom verdsettes under ett med bygninger og rettigheter som hører til eiendommen.
+(2) Verdien av skog settes til den avkastningsverdien skogen har på lengre sikt ved rasjonell skjøtsel og drift etter forskrift, jf. skatteforvaltningsloven § 9-8 tredje ledd.
+(3) Reinflokk verdsettes ut fra antall kalver under ett år og dyr på ett år eller mer til henholdsvis 15 og 30 prosent av den slakteprisen som ble oppnådd i landsgjennomsnitt for dyr på ett år eller mer i året før inntektsåret.
 """
 
 prompt = PromptTemplate.from_template(lovdata_template)
@@ -164,8 +162,8 @@ async def ask_question_get_answer(question: str) -> dict:
             "message": message,
             "result": result
         }
-    
-    else:   
+
+    else:
         return {
             "task": task_type,
             "document_name": document_name,
