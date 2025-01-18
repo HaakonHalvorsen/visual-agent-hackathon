@@ -4,7 +4,6 @@ import os
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
-from ...infrastructure.composio_agent import ComposioAgent
 
 load_dotenv()
 OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
@@ -44,11 +43,10 @@ Format the answer as follows:
 """
 
 skatt_lovdata = """
-Skatteloven er en norsk lov som regulerer forhold ved innkreving av ulike skatter. Blant annet regulerer loven formuesskatt, inntektsskatt, grunnrenteskatt, naturresursskatt og tonnasjeskatt.
-
-I tråd med legalitetsprinsippet er loven hjemmelsgrunnlag for kommunestyrene, fylkestingene og Stortinget slik at disse kan pålegge de fastsatte skattene ved de ulike administrasjonsnivåene.
-
-Någjeldende skattelov ble vedtatt i 1999 som følge av et behov for lovteknisk revisjon av gjeldende skattelov fra 1911 og de ulike særlovene som var i kraft i 1999. Skattereformer er jevnlig gjenstand for politisk debatt i anledning valg og andre former for utøvelse av demokrati.
+§ 4-11.Jordbrukseiendom, skog og reinflokk
+(1) Jordbrukseiendom verdsettes under ett med bygninger og rettigheter som hører til eiendommen.
+(2) Verdien av skog settes til den avkastningsverdien skogen har på lengre sikt ved rasjonell skjøtsel og drift etter forskrift, jf. skatteforvaltningsloven § 9-8 tredje ledd.
+(3) Reinflokk verdsettes ut fra antall kalver under ett år og dyr på ett år eller mer til henholdsvis 15 og 30 prosent av den slakteprisen som ble oppnådd i landsgjennomsnitt for dyr på ett år eller mer i året før inntektsåret.
 """
 
 prompt = PromptTemplate.from_template(lovdata_template)
@@ -122,53 +120,15 @@ def extract_content_between_tags(
 async def ask_question_get_answer(question: str) -> dict:
     llm_chain = prompt | llm
     answer = llm_chain.invoke(input={"question": question, "lovdata": skatt_lovdata})
-    task_type = extract_content_between_tags(str(answer), opening_tag="<task>", closing_tag="</task>").strip()
+    task = extract_content_between_tags(str(answer), opening_tag="<task>", closing_tag="</task>")
     document_name = extract_content_between_tags(str(answer), opening_tag="<document-name>", closing_tag="</document-name>")
     message = extract_content_between_tags(str(answer), opening_tag="<message>", closing_tag="</message>")
-    print(task_type)
-    agent = ComposioAgent()
 
-    if "document" in task_type:
-        task = f"Save {message} in a new document called {document_name}."
-        print(task)
-        result = agent.execute_task(task)
-        print(result)
-        return {
-            "task": task_type,
-            "document_name": document_name,
-            "message": message,
-            "result": result
-        }
 
-    elif "spreadsheet" in task_type:
-        task = f"Save {message} in a new spreadsheet called {document_name}."
-        print(task)
-        result = agent.execute_task(task)
-        print(result)
-        return {
-            "task": task_type,
-            "document_name": document_name,
-            "message": message,
-            "result": result
-        }
 
-    elif "mail" in task_type:
-        task = f"Send an email with subject {document_name} and body {message} to laksiyab@gmail.com."
-        print(task)
-        result = agent.execute_task(task)
-        print(result)
 
-        return {
-            "task": task_type,
-            "document_name": document_name,
-            "message": message,
-            "result": result
-        }
-    
-    else:   
-        return {
-            "task": task_type,
-            "document_name": document_name,
-            "message": message,
-            "result": "No task found"
-        }
+    return {
+        "task": task,
+        "document_name": document_name,
+        "message": message
+    }
